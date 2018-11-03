@@ -158,10 +158,10 @@ private:
     JetDefinition ak11_def;
     JetDefinition ca11_def;
     
-    Pruner ak4_pruner(ak4_def, zcut, Rcut_factor);
-    Pruner ak8_pruner(ak8_def, zcut, Rcut_factor);
-    Pruner ak11_pruner(ak11_def, zcut, Rcut_factor);
-    Pruner ca11_pruner(ca11_def, zcut, Rcut_factor);
+    Pruner ak4_pruner = Pruner(ak4_def, zcut, Rcut_factor);
+    Pruner ak8_pruner = Pruner(ak8_def, zcut, Rcut_factor);
+    Pruner ak11_pruner = Pruner(ak11_def, zcut, Rcut_factor);
+    Pruner ca11_pruner = Pruner(ca11_def, zcut, Rcut_factor);
     
     //Rfilt = 0.2, and SelectorPtFractio min is 0.03
     // Found these in FastJetProducer in cmssw

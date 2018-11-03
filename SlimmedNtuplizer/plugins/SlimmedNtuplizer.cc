@@ -37,8 +37,6 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     file = new TFile(file_name.c_str(), "RECREATE");
     tree = new TTree("events", "Tree for scouting data");
     
-    event_counter = 0;
-
     L1corrAK4_DATA_ = iConfig.getParameter<string>("L1corrAK4_DATA");
     L2corrAK4_DATA_ = iConfig.getParameter<string>("L2corrAK4_DATA");
     L3corrAK4_DATA_ = iConfig.getParameter<string>("L3corrAK4_DATA");
@@ -327,7 +325,6 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak11_area.clear();
     fj_ak11_pruned_mass.clear();
     fj_ak11_trimmed_mass.clear();
-    fj_ak11_jec.clear();
     fj_ak11_tau1.clear();
     fj_ak11_tau2.clear();
     fj_ak11_tau3.clear();
@@ -537,7 +534,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak4_num += 1;
         fj_ak4_pt.push_back(fj_pt);
         fj_ak4_eta.push_back(j.pseudorapidity());
-        fj_ak4_phi.push_back(j.phi() - TMath.Pi());
+        fj_ak4_phi.push_back(j.phi() - TMath::Pi());
         fj_ak4_m.push_back(j.m());
         fj_ak4_area.push_back(j.area());
         
@@ -572,7 +569,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak8_num += 1;
         fj_ak8_pt.push_back(fj_pt);
         fj_ak8_eta.push_back(j.pseudorapidity());
-        fj_ak8_phi.push_back(j.phi() - TMath.Pi());
+        fj_ak8_phi.push_back(j.phi() - TMath::Pi());
         fj_ak8_m.push_back(j.m());
         fj_ak8_area.push_back(j.area());
 
@@ -597,14 +594,12 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         double fj_pt = 0.0;
         fj_pt = j.pt();
         if(fj_pt < 0) continue;
-                
-        fj_ak11_jec.push_back(correctionJEC);
-        
+                        
         fj_ak11_Ht += fj_pt;
         fj_ak11_num += 1;
         fj_ak11_pt.push_back(fj_pt);
         fj_ak11_eta.push_back(j.pseudorapidity());
-        fj_ak11_phi.push_back(j.phi() - TMath.Pi());
+        fj_ak11_phi.push_back(j.phi() - TMath::Pi());
         fj_ak11_m.push_back(j.m());
         fj_ak11_area.push_back(j.area());
 
@@ -633,7 +628,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ca11_num += 1;
         fj_ca11_pt.push_back(fj_pt);
         fj_ca11_eta.push_back(j.pseudorapidity());
-        fj_ca11_phi.push_back(j.phi() - TMath.Pi());
+        fj_ca11_phi.push_back(j.phi() - TMath::Pi());
         fj_ca11_m.push_back(j.m());
         fj_ca11_area.push_back(j.area());
 
@@ -657,7 +652,7 @@ float SlimmedNtuplizer::match_btag(PseudoJet fj_jet, float delta_r) {
      
      float highest_csv = 0;
      
-     fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi() - TMath.Pi(), fj_jet.m());
+     fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi() - TMath::Pi(), fj_jet.m());
      
      for(int i = 0; i < jet_num; i++) {
 		 hlt_jet.SetPtEtaPhiM(jet_pt[i], jet_eta[i], jet_phi[i], jet_m[i]);
