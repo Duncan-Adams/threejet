@@ -538,6 +538,8 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak4_m.push_back(j.m());
         fj_ak4_area.push_back(j.area());
         
+        fj_ak4_csv.push_back(match_btag(j, 0.01));
+        
         PseudoJet pruned_ak4 = ak4_pruner(j);
         fj_ak4_pruned_mass.push_back(pruned_ak4.m());
         
@@ -572,6 +574,8 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak8_phi.push_back(j.phi_std());
         fj_ak8_m.push_back(j.m());
         fj_ak8_area.push_back(j.area());
+        
+        fj_ak8_csv.push_back(match_btag(j, 0.6));
 
         PseudoJet pruned_ak8 = ak8_pruner(j);
         fj_ak8_pruned_mass.push_back(pruned_ak8.m());
@@ -606,6 +610,8 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         PseudoJet pruned_ak11 = ak11_pruner(j);
         fj_ak11_pruned_mass.push_back(pruned_ak11.m());
         
+        fj_ak11_csv.push_back(match_btag(j, 0.9));
+       
         PseudoJet trimmed_ak11 = trimmer(j);
         fj_ak11_trimmed_mass.push_back(trimmed_ak11.m());
         
@@ -634,6 +640,8 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
 
         PseudoJet pruned_ca11 = ca11_pruner(j);
         fj_ca11_pruned_mass.push_back(pruned_ca11.m());
+
+        fj_ca11_csv.push_back(match_btag(j, 0.5));
 
         fj_ca11_tau1.push_back(nSub1.result(j));
         fj_ca11_tau2.push_back(nSub2.result(j));
