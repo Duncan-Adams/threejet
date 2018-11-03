@@ -1,0 +1,1 @@
+/cms/threejet-2/data/scouting_data/ScoutingPFHT/Slimmed_Ntuples_Run2017D_v1/180930_174008/0000/slimmed_ntuple_36.root
