@@ -513,7 +513,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
     double correctionJEC = 1.0;
     
     //Note that fastjet does phi from 0 to 2pi, but CMS does -pi to pi.
-    //So I subtract pi from the phi's for the fj results.
+    //the function phi_std() in fastjet uses the CMS comvention
     
     for(auto &j: ak4_jets) {
         if(fabs(j.pseudorapidity()) > 2.4) continue;
@@ -534,7 +534,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak4_num += 1;
         fj_ak4_pt.push_back(fj_pt);
         fj_ak4_eta.push_back(j.pseudorapidity());
-        fj_ak4_phi.push_back(j.phi() - TMath::Pi());
+        fj_ak4_phi.push_back(j.phi_std());
         fj_ak4_m.push_back(j.m());
         fj_ak4_area.push_back(j.area());
         
@@ -569,7 +569,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak8_num += 1;
         fj_ak8_pt.push_back(fj_pt);
         fj_ak8_eta.push_back(j.pseudorapidity());
-        fj_ak8_phi.push_back(j.phi() - TMath::Pi());
+        fj_ak8_phi.push_back(j.phi_std());
         fj_ak8_m.push_back(j.m());
         fj_ak8_area.push_back(j.area());
 
@@ -599,7 +599,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ak11_num += 1;
         fj_ak11_pt.push_back(fj_pt);
         fj_ak11_eta.push_back(j.pseudorapidity());
-        fj_ak11_phi.push_back(j.phi() - TMath::Pi());
+        fj_ak11_phi.push_back(j.phi_std());
         fj_ak11_m.push_back(j.m());
         fj_ak11_area.push_back(j.area());
 
@@ -628,7 +628,7 @@ void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet
         fj_ca11_num += 1;
         fj_ca11_pt.push_back(fj_pt);
         fj_ca11_eta.push_back(j.pseudorapidity());
-        fj_ca11_phi.push_back(j.phi() - TMath::Pi());
+        fj_ca11_phi.push_back(j.phi_std());
         fj_ca11_m.push_back(j.m());
         fj_ca11_area.push_back(j.area());
 
@@ -652,7 +652,7 @@ float SlimmedNtuplizer::match_btag(PseudoJet fj_jet, float delta_r) {
      
      float highest_csv = 0;
      
-     fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi() - TMath::Pi(), fj_jet.m());
+     fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi_std(), fj_jet.m());
      
      for(int i = 0; i < jet_num; i++) {
 		 hlt_jet.SetPtEtaPhiM(jet_pt[i], jet_eta[i], jet_phi[i], jet_m[i]);
