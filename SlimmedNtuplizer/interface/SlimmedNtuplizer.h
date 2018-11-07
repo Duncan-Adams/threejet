@@ -60,6 +60,7 @@
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
 #include "fastjet/contrib/Nsubjettiness.hh"
+#include "fastjet/contrib/SoftDrop.hh"
 #include "fastjet/tools/Pruner.hh"
 #include "fastjet/tools/Filter.hh"
 
@@ -89,15 +90,6 @@ private:
     
     bool JetID(ScoutingPFJet jet); //This function returns true if the jet passes the tightid criteria
    
-    // fill_leptons fills electron and muon variables
-    void fill_leptons(void);
-    
-    //fill_hlt_jets is a helper function to loop over jets from hlt and fill vaiables
-    void fill_hlt_jets(void);
-    
-    // fill_fj_collection is a helper function to loop over jets in a fastjet collection and fills variables
-    void fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet> ak8_jets, vector<PseudoJet> ak11_jets, vector<PseudoJet> ca11_jets);
-
     // match_btag takes a fastjet  jet and loops through hlt jets and assigns a csv to the fastjet jet from the highest csv inside the cone
     // delta_r is used to test if the hlt jet is inside the fastjet jet (i.e. if DR(fj_jet, hlt_jet) < delta_r)
     float match_btag(PseudoJet fj_jet, float delta_r);
@@ -153,15 +145,23 @@ private:
     GhostedAreaSpec area_spec;
     AreaDefinition area_def;
     
-    JetDefinition ak4_def;
-    JetDefinition ak8_def;
-    JetDefinition ak11_def;
-    JetDefinition ca11_def;
+    JetDefinition ak4_def = JetDefinition(antikt_algorithm, 0.4);
+    JetDefinition ak8_def = JetDefinition(antikt_algorithm, 0.8);
+    JetDefinition ak11_def = JetDefinition(antikt_algorithm, 1.1);
+    JetDefinition ca11_def = JetDefinition(cambridge_algorithm, 1.1);
     
     Pruner ak4_pruner = Pruner(ak4_def, zcut, Rcut_factor);
     Pruner ak8_pruner = Pruner(ak8_def, zcut, Rcut_factor);
     Pruner ak11_pruner = Pruner(ak11_def, zcut, Rcut_factor);
     Pruner ca11_pruner = Pruner(ca11_def, zcut, Rcut_factor);
+    
+    double sd_z_cut = 0.10;
+    double sd_beta = 0;
+    
+    
+    SoftDrop sd_groomer_4 = SoftDrop(sd_z_cut, sd_beta, 0.4);
+    SoftDrop sd_groomer_8 = SoftDrop(sd_z_cut, sd_beta, 0.8);
+    SoftDrop sd_groomer_11 = SoftDrop(sd_z_cut, sd_beta, 1.1);
     
     //Rfilt = 0.2, and SelectorPtFractio min is 0.03
     // Found these in FastJetProducer in cmssw
@@ -189,6 +189,7 @@ private:
     std::vector<float> fj_ak4_area;
     
     std::vector<float> fj_ak4_pruned_mass;
+    std::vector<float> fj_ak4_sd_mass;
     
     std::vector<float> fj_ak4_jec;
     
@@ -211,6 +212,7 @@ private:
     
     std::vector<float> fj_ak8_pruned_mass;
     std::vector<float> fj_ak8_trimmed_mass;
+    std::vector<float> fj_ak8_sd_mass;
     
     std::vector<float> fj_ak8_jec;
     
@@ -233,6 +235,7 @@ private:
     
     std::vector<float> fj_ak11_pruned_mass;
     std::vector<float> fj_ak11_trimmed_mass;
+    std::vector<float> fj_ak11_sd_mass;
    
     std::vector<float> fj_ak11_csv;
        
@@ -252,6 +255,7 @@ private:
     std::vector<float> fj_ca11_area;
 
     std::vector<float> fj_ca11_pruned_mass;
+    std::vector<float> fj_ca11_sd_mass;
     
     std::vector<float> fj_ca11_csv;
     
@@ -297,5 +301,7 @@ private:
     int run;
     int lumi;
     int event;
+
+    bool is_data;
 };
 

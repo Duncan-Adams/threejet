@@ -31,47 +31,50 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     token_rho(consumes<double>(iConfig.getParameter<InputTag>("rho"))),
     token_electrons(consumes<ScoutingElectronCollection>(iConfig.getParameter<InputTag>("electron_collection"))),
     token_muons(consumes<ScoutingMuonCollection>(iConfig.getParameter<InputTag>("muon_collection"))),
-    file_name(iConfig.getParameter<string>("output_file_name"))
+    file_name(iConfig.getParameter<string>("output_file_name")),
+    is_data(iConfig.getParameter<bool>("is_data"))
 {
     //now do what ever initialization is needed
     file = new TFile(file_name.c_str(), "RECREATE");
     tree = new TTree("events", "Tree for scouting data");
     
-    L1corrAK4_DATA_ = iConfig.getParameter<string>("L1corrAK4_DATA");
-    L2corrAK4_DATA_ = iConfig.getParameter<string>("L2corrAK4_DATA");
-    L3corrAK4_DATA_ = iConfig.getParameter<string>("L3corrAK4_DATA");
-    L2L3corrAK4_DATA_ = iConfig.getParameter<string>("L2L3corrAK4_DATA");
-  
-    L1ParAK4_DATA = new JetCorrectorParameters(L1corrAK4_DATA_);
-    L2ParAK4_DATA = new JetCorrectorParameters(L2corrAK4_DATA_);
-    L3ParAK4_DATA = new JetCorrectorParameters(L3corrAK4_DATA_);
-    L2L3ResAK4_DATA = new JetCorrectorParameters(L2L3corrAK4_DATA_);
-
-    vector<JetCorrectorParameters> vParAK4_DATA;
-    vParAK4_DATA.push_back(*L1ParAK4_DATA);
-    vParAK4_DATA.push_back(*L2ParAK4_DATA);
-    vParAK4_DATA.push_back(*L3ParAK4_DATA);
-    vParAK4_DATA.push_back(*L2L3ResAK4_DATA);
-
-    JetCorrectorAK4_DATA = new FactorizedJetCorrector(vParAK4_DATA);
-    
-    L1corrAK8_DATA_ = iConfig.getParameter<string>("L1corrAK8_DATA");
-    L2corrAK8_DATA_ = iConfig.getParameter<string>("L2corrAK8_DATA");
-    L3corrAK8_DATA_ = iConfig.getParameter<string>("L3corrAK8_DATA");
-    L2L3corrAK8_DATA_ = iConfig.getParameter<string>("L2L3corrAK8_DATA");
-
-    L1ParAK8_DATA = new JetCorrectorParameters(L1corrAK8_DATA_.c_str());
-    L2ParAK8_DATA = new JetCorrectorParameters(L2corrAK8_DATA_.c_str());
-    L3ParAK8_DATA = new JetCorrectorParameters(L3corrAK8_DATA_.c_str());
-    L2L3ResAK8_DATA = new JetCorrectorParameters(L2L3corrAK8_DATA_.c_str());
-
-    vector<JetCorrectorParameters> vParAK8_DATA;
-    vParAK8_DATA.push_back(*L1ParAK8_DATA);
-    vParAK8_DATA.push_back(*L2ParAK8_DATA);
-    vParAK8_DATA.push_back(*L3ParAK8_DATA);
-    vParAK8_DATA.push_back(*L2L3ResAK8_DATA);
-
-    JetCorrectorAK8_DATA = new FactorizedJetCorrector(vParAK8_DATA);
+    if(is_data) {
+	    L1corrAK4_DATA_ = iConfig.getParameter<string>("L1corrAK4_DATA");
+	    L2corrAK4_DATA_ = iConfig.getParameter<string>("L2corrAK4_DATA");
+	    L3corrAK4_DATA_ = iConfig.getParameter<string>("L3corrAK4_DATA");
+	    L2L3corrAK4_DATA_ = iConfig.getParameter<string>("L2L3corrAK4_DATA");
+	  
+	    L1ParAK4_DATA = new JetCorrectorParameters(L1corrAK4_DATA_);
+	    L2ParAK4_DATA = new JetCorrectorParameters(L2corrAK4_DATA_);
+	    L3ParAK4_DATA = new JetCorrectorParameters(L3corrAK4_DATA_);
+	    L2L3ResAK4_DATA = new JetCorrectorParameters(L2L3corrAK4_DATA_);
+	
+	    vector<JetCorrectorParameters> vParAK4_DATA;
+	    vParAK4_DATA.push_back(*L1ParAK4_DATA);
+	    vParAK4_DATA.push_back(*L2ParAK4_DATA);
+	    vParAK4_DATA.push_back(*L3ParAK4_DATA);
+	    vParAK4_DATA.push_back(*L2L3ResAK4_DATA);
+	
+	    JetCorrectorAK4_DATA = new FactorizedJetCorrector(vParAK4_DATA);
+	    
+	    L1corrAK8_DATA_ = iConfig.getParameter<string>("L1corrAK8_DATA");
+	    L2corrAK8_DATA_ = iConfig.getParameter<string>("L2corrAK8_DATA");
+	    L3corrAK8_DATA_ = iConfig.getParameter<string>("L3corrAK8_DATA");
+	    L2L3corrAK8_DATA_ = iConfig.getParameter<string>("L2L3corrAK8_DATA");
+	
+	    L1ParAK8_DATA = new JetCorrectorParameters(L1corrAK8_DATA_.c_str());
+	    L2ParAK8_DATA = new JetCorrectorParameters(L2corrAK8_DATA_.c_str());
+	    L3ParAK8_DATA = new JetCorrectorParameters(L3corrAK8_DATA_.c_str());
+	    L2L3ResAK8_DATA = new JetCorrectorParameters(L2L3corrAK8_DATA_.c_str());
+	
+	    vector<JetCorrectorParameters> vParAK8_DATA;
+	    vParAK8_DATA.push_back(*L1ParAK8_DATA);
+	    vParAK8_DATA.push_back(*L2ParAK8_DATA);
+	    vParAK8_DATA.push_back(*L3ParAK8_DATA);
+	    vParAK8_DATA.push_back(*L2L3ResAK8_DATA);
+	
+	    JetCorrectorAK8_DATA = new FactorizedJetCorrector(vParAK8_DATA);
+	}
 
     // HLT Jet data
     tree->Branch("HT", &Ht, "HT/F");
@@ -104,6 +107,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("fj_ak4_m", &fj_ak4_m);
     tree->Branch("fj_ak4_area", &fj_ak4_area); 
     tree->Branch("fj_ak4_pruned_mass", &fj_ak4_pruned_mass);
+    tree->Branch("fj_ak4_sd_mass", &fj_ak4_sd_mass);
     tree->Branch("fj_ak4_jec", &fj_ak4_jec); 
     tree->Branch("fj_ak4_csv", &fj_ak4_csv); 
     tree->Branch("fj_ak4_tau1", &fj_ak4_tau1);
@@ -121,6 +125,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("fj_ak8_area", &fj_ak8_area);
     tree->Branch("fj_ak8_pruned_mass", &fj_ak8_pruned_mass);
     tree->Branch("fj_ak8_trimmed_mass", &fj_ak8_trimmed_mass);
+    tree->Branch("fj_ak8_sd_mass", &fj_ak8_sd_mass);
     tree->Branch("fj_ak8_jec", &fj_ak8_jec); 
     tree->Branch("fj_ak8_csv", &fj_ak8_csv); 
     tree->Branch("fj_ak8_tau1", &fj_ak8_tau1);
@@ -138,6 +143,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("fj_ak11_area", &fj_ak11_area);
     tree->Branch("fj_ak11_pruned_mass", &fj_ak11_pruned_mass);
     tree->Branch("fj_ak11_trimmed_mass", &fj_ak11_trimmed_mass);
+    tree->Branch("fj_ak11_sd_mass", &fj_ak11_sd_mass);
     tree->Branch("fj_ak11_csv", &fj_ak11_csv);
     tree->Branch("fj_ak11_tau1", &fj_ak11_tau1);
     tree->Branch("fj_ak11_tau2", &fj_ak11_tau2);
@@ -153,6 +159,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("fj_ca11_m", &fj_ca11_m);
     tree->Branch("fj_ca11_area", &fj_ca11_area);
     tree->Branch("fj_ca11_pruned_mass", &fj_ca11_pruned_mass);
+    tree->Branch("fj_ca11_sd_mass", &fj_ca11_sd_mass);
     tree->Branch("fj_ca11_csv", &fj_ca11_csv);
     tree->Branch("fj_ca11_tau1", &fj_ca11_tau1);
     tree->Branch("fj_ca11_tau2", &fj_ca11_tau2);
@@ -175,12 +182,6 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     
     area_spec = GhostedAreaSpec(max_ghost_rap, n_repeat, ghost_area);
     area_def = AreaDefinition(fastjet::active_area, area_spec);
-    
-    ak4_def = JetDefinition(antikt_algorithm, 0.4);
-    ak8_def = JetDefinition(antikt_algorithm, 0.8);
-    ak8_def = JetDefinition(antikt_algorithm, 1.1);
-    ca11_def = JetDefinition(cambridge_algorithm, 1.1);
-    
 }
 
 
@@ -199,8 +200,7 @@ SlimmedNtuplizer::~SlimmedNtuplizer() {
 
 
 // ------------ method called for each event  ------------
-void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
-{       
+void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {       
     ResetVariables();
     
     run = iEvent.id().run();
@@ -213,11 +213,58 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     // Event level Stuff first
     rho = *handle_rho;
 
-    //Call fill_hlt_jets helper function to fill jet variables
-    fill_hlt_jets();
+    double correctionJEC = 1.0;
+    
+    // HLT Jets
+    for (auto &j: *jets) {
+        if (fabs(j.eta()) > 2.4) 
+            continue;
+            
+        if(j.pt() < 20)
+            continue;
+        
+        if(JetID(j) == false)
+            continue;
+        
+        if(is_data) {
+	        JetCorrectorAK4_DATA->setJetEta(j.eta());
+	        JetCorrectorAK4_DATA->setJetPt(j.pt());
+	        JetCorrectorAK4_DATA->setJetA(j.jetArea());
+	        JetCorrectorAK4_DATA->setRho(rho);
+	        correctionJEC = JetCorrectorAK4_DATA->getCorrection();
+	    }
+        
+        jet_energy_correction.push_back(correctionJEC);
+        
+        jet_pt.push_back(j.pt());
+        jet_eta.push_back(j.eta());
+        jet_phi.push_back(j.phi());
+        jet_m.push_back(j.m());
+        jet_csv.push_back(j.csv());
+        jet_area.push_back(j.jetArea());
+        
+        jet_num += 1;
+        
+        Ht += j.pt(); // no corrections to Ht
+
+        correctionJEC = 1.0;
+    }
     
     //Call fill_leptons helper function to fill electron and muon variables
-    fill_leptons();
+    for (auto &e: *electrons) {
+            electron_pt.push_back(e.pt());
+            electron_eta.push_back(e.eta());
+            electron_phi.push_back(e.phi());
+
+    }
+
+    for (auto &m: *muons) {
+            muon_pt.push_back(m.pt());
+            muon_eta.push_back(m.eta()); 
+            muon_phi.push_back(m.phi()); 
+    }
+    electron_num = electrons->size();
+    muon_num = muons->size(); 
         
     // do fastjet stuff here
     PseudoJet temp_jet = PseudoJet(0, 0, 0, 0);
@@ -233,13 +280,166 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     ClusterSequenceArea ak11_cs(fj_part, ak11_def, area_def);
     ClusterSequenceArea ca11_cs(fj_part, ca11_def, area_def);
     
-    vector<PseudoJet> fj_ak4_jets = sorted_by_pt(ak4_cs.inclusive_jets(20));
-    vector<PseudoJet> fj_ak8_jets = sorted_by_pt(ak8_cs.inclusive_jets(100));
-    vector<PseudoJet> fj_ak11_jets = sorted_by_pt(ak11_cs.inclusive_jets(100));
-    vector<PseudoJet> fj_ca11_jets = sorted_by_pt(ca11_cs.inclusive_jets(100));
+    vector<PseudoJet> ak4_jets = sorted_by_pt(ak4_cs.inclusive_jets(20));
+    vector<PseudoJet> ak8_jets = sorted_by_pt(ak8_cs.inclusive_jets(100));
+    vector<PseudoJet> ak11_jets = sorted_by_pt(ak11_cs.inclusive_jets(100));
+    vector<PseudoJet> ca11_jets = sorted_by_pt(ca11_cs.inclusive_jets(100));
 
-    //Call fill_fj_jets helper function to fill jet variables
-    fill_fj_jets(fj_ak4_jets, fj_ak8_jets, fj_ak11_jets, fj_ca11_jets);
+    //Note that fastjet does phi from 0 to 2pi, but CMS does -pi to pi.
+    //the function phi_std() in fastjet uses the CMS comvention
+    
+    for(auto &j: ak4_jets) {
+        if(fabs(j.pseudorapidity()) > 2.4) continue;
+         
+        double fj_pt = 0.0;
+        fj_pt = j.pt();
+        if(fj_pt < 0) continue;
+        
+        if(is_data){
+	        JetCorrectorAK4_DATA->setJetEta(j.pseudorapidity());
+	        JetCorrectorAK4_DATA->setJetPt(fj_pt);
+	        JetCorrectorAK4_DATA->setJetA(j.area());
+	        JetCorrectorAK4_DATA->setRho(rho);
+	        correctionJEC = JetCorrectorAK4_DATA->getCorrection();
+	    }
+	    
+        fj_ak4_jec.push_back(correctionJEC);
+        
+        fj_ak4_Ht += fj_pt;
+        fj_ak4_num += 1;
+        fj_ak4_pt.push_back(fj_pt);
+        fj_ak4_eta.push_back(j.pseudorapidity());
+        fj_ak4_phi.push_back(j.phi_std());
+        fj_ak4_m.push_back(j.m());
+        fj_ak4_area.push_back(j.area());
+        
+        fj_ak4_csv.push_back(match_btag(j, 0.1));
+        
+        PseudoJet pruned_ak4 = ak4_pruner(j);
+        fj_ak4_pruned_mass.push_back(pruned_ak4.m());
+        
+        PseudoJet sd_ak4 = sd_groomer_4(j);
+        fj_ak4_sd_mass.push_back(sd_ak4.m());
+        
+        fj_ak4_tau1.push_back(nSub1.result(j));
+        fj_ak4_tau2.push_back(nSub2.result(j));
+        fj_ak4_tau3.push_back(nSub3.result(j));
+        fj_ak4_tau3.push_back(nSub4.result(j));
+        fj_ak4_tau3.push_back(nSub5.result(j));
+        
+        correctionJEC = 1.0;
+    }
+
+    for(auto &j: ak8_jets) {
+        if(fabs(j.pseudorapidity()) > 2.4) continue;
+        
+        double fj_pt = 0.0;
+        fj_pt = j.pt();
+        if(fj_pt < 0) continue;
+        
+        if(is_data) {
+	        JetCorrectorAK8_DATA->setJetEta(j.pseudorapidity());
+	        JetCorrectorAK8_DATA->setJetPt(fj_pt);
+	        JetCorrectorAK8_DATA->setJetA(j.area());
+	        JetCorrectorAK8_DATA->setRho(rho);
+	        correctionJEC = JetCorrectorAK8_DATA->getCorrection();       
+	    }
+        
+        
+        fj_ak8_jec.push_back(correctionJEC);
+        
+        fj_ak8_Ht += fj_pt;
+        fj_ak8_num += 1;
+        fj_ak8_pt.push_back(fj_pt);
+        fj_ak8_eta.push_back(j.pseudorapidity());
+        fj_ak8_phi.push_back(j.phi_std());
+        fj_ak8_m.push_back(j.m());
+        fj_ak8_area.push_back(j.area());
+        
+        fj_ak8_csv.push_back(match_btag(j, 0.6));
+
+        PseudoJet pruned_ak8 = ak8_pruner(j);
+        fj_ak8_pruned_mass.push_back(pruned_ak8.m());
+        
+        PseudoJet trimmed_ak8 = trimmer(j);
+        fj_ak8_trimmed_mass.push_back(trimmed_ak8.m());
+        
+        PseudoJet sd_ak8 = sd_groomer_8(j);
+        fj_ak8_sd_mass.push_back(sd_ak8.m());
+        
+        fj_ak8_tau1.push_back(nSub1.result(j));
+        fj_ak8_tau2.push_back(nSub2.result(j));
+        fj_ak8_tau3.push_back(nSub3.result(j));
+        fj_ak8_tau4.push_back(nSub4.result(j));
+        fj_ak8_tau5.push_back(nSub5.result(j));
+
+        correctionJEC = 1.0;
+    }
+    
+    for(auto &j: ak11_jets) {
+        if(fabs(j.pseudorapidity()) > 2.4) continue;
+        
+        double fj_pt = 0.0;
+        fj_pt = j.pt();
+        if(fj_pt < 0) continue;
+                        
+        fj_ak11_Ht += fj_pt;
+        fj_ak11_num += 1;
+        fj_ak11_pt.push_back(fj_pt);
+        fj_ak11_eta.push_back(j.pseudorapidity());
+        fj_ak11_phi.push_back(j.phi_std());
+        fj_ak11_m.push_back(j.m());
+        fj_ak11_area.push_back(j.area());
+
+        PseudoJet pruned_ak11 = ak11_pruner(j);
+        fj_ak11_pruned_mass.push_back(pruned_ak11.m());
+        
+        fj_ak11_csv.push_back(match_btag(j, 0.9));
+       
+        PseudoJet trimmed_ak11 = trimmer(j);
+        fj_ak11_trimmed_mass.push_back(trimmed_ak11.m());
+        
+        PseudoJet sd_ak11 = sd_groomer_11(j);
+        fj_ak11_sd_mass.push_back(sd_ak11.m());
+        
+        fj_ak11_tau1.push_back(nSub1.result(j));
+        fj_ak11_tau2.push_back(nSub2.result(j));
+        fj_ak11_tau3.push_back(nSub3.result(j));
+        fj_ak11_tau4.push_back(nSub4.result(j));
+        fj_ak11_tau5.push_back(nSub5.result(j));
+
+    }
+
+    for(auto &j: ca11_jets) {
+        if(fabs(j.pseudorapidity()) > 2.4) continue;
+
+        double fj_pt = 0.0;
+        fj_pt = j.pt();
+        if(fj_pt < 0) continue;
+
+        fj_ca11_Ht += fj_pt;
+        fj_ca11_num += 1;
+        fj_ca11_pt.push_back(fj_pt);
+        fj_ca11_eta.push_back(j.pseudorapidity());
+        fj_ca11_phi.push_back(j.phi_std());
+        fj_ca11_m.push_back(j.m());
+        fj_ca11_area.push_back(j.area());
+
+        PseudoJet pruned_ca11 = ca11_pruner(j);
+        fj_ca11_pruned_mass.push_back(pruned_ca11.m());
+
+        fj_ca11_csv.push_back(match_btag(j, 0.8));
+        
+        PseudoJet sd_ca11 = sd_groomer_11(j);
+        fj_ca11_sd_mass.push_back(sd_ca11.m());
+
+        fj_ca11_tau1.push_back(nSub1.result(j));
+        fj_ca11_tau2.push_back(nSub2.result(j));
+        fj_ca11_tau3.push_back(nSub3.result(j));
+        fj_ca11_tau4.push_back(nSub4.result(j));
+        fj_ca11_tau5.push_back(nSub5.result(j));
+    }   
+
 
     tree->Fill();
     return;
@@ -292,6 +492,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak4_phi.clear();
     fj_ak4_m.clear();
     fj_ak4_pruned_mass.clear();
+    fj_ak4_sd_mass.clear();
     fj_ak4_area.clear();
     fj_ak4_jec.clear();
     fj_ak4_tau1.clear();
@@ -309,6 +510,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak8_area.clear();
     fj_ak8_pruned_mass.clear();
     fj_ak8_trimmed_mass.clear();
+    fj_ak8_sd_mass.clear();
     fj_ak8_jec.clear();
     fj_ak8_tau1.clear();
     fj_ak8_tau2.clear();
@@ -325,6 +527,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak11_area.clear();
     fj_ak11_pruned_mass.clear();
     fj_ak11_trimmed_mass.clear();
+    fj_ak11_sd_mass.clear();
     fj_ak11_tau1.clear();
     fj_ak11_tau2.clear();
     fj_ak11_tau3.clear();
@@ -339,6 +542,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ca11_m.clear();
     fj_ca11_area.clear();
     fj_ca11_pruned_mass.clear();
+    fj_ca11_sd_mass.clear();
     fj_ca11_tau1.clear();
     fj_ca11_tau2.clear();
     fj_ca11_tau3.clear();
@@ -452,207 +656,6 @@ bool SlimmedNtuplizer::JetID(ScoutingPFJet jet) {
     
     return jet_id;  
 }
-
-void SlimmedNtuplizer::fill_leptons() {
-    for (auto &e: *electrons) {
-            electron_pt.push_back(e.pt());
-            electron_eta.push_back(e.eta());
-            electron_phi.push_back(e.phi());
-
-    }
-
-    for (auto &m: *muons) {
-            muon_pt.push_back(m.pt());
-            muon_eta.push_back(m.eta()); 
-            muon_phi.push_back(m.phi()); 
-    }
-    electron_num = electrons->size();
-    muon_num = muons->size();   
-    
-}
-
-void SlimmedNtuplizer::fill_hlt_jets() {
-    double correctionJEC = 1.0;
-    
-    // HLT Jets
-    for (auto &j: *jets) {
-        if (fabs(j.eta()) > 2.4) 
-            continue;
-        
-        if(JetID(j) == false)
-            continue;
-        
-
-        JetCorrectorAK4_DATA->setJetEta(j.eta());
-        JetCorrectorAK4_DATA->setJetPt(j.pt());
-        JetCorrectorAK4_DATA->setJetA(j.jetArea());
-        JetCorrectorAK4_DATA->setRho(rho);
-        correctionJEC = JetCorrectorAK4_DATA->getCorrection();
-
-        
-        jet_energy_correction.push_back(correctionJEC);
-        
-        jet_pt.push_back(j.pt());
-        jet_eta.push_back(j.eta());
-        jet_phi.push_back(j.phi());
-        jet_m.push_back(j.m());
-        jet_csv.push_back(j.csv());
-        jet_area.push_back(j.jetArea());
-        
-        jet_num += 1;
-        
-        Ht += j.pt(); // no corrections to Ht
-
-        correctionJEC = 1.0;
-    }
-        
-    
-}
-
-void SlimmedNtuplizer::fill_fj_jets(vector<PseudoJet> ak4_jets, vector<PseudoJet> ak8_jets, vector<PseudoJet> ak11_jets, vector<PseudoJet> ca11_jets) {
-    double correctionJEC = 1.0;
-    
-    //Note that fastjet does phi from 0 to 2pi, but CMS does -pi to pi.
-    //the function phi_std() in fastjet uses the CMS comvention
-    
-    for(auto &j: ak4_jets) {
-        if(fabs(j.pseudorapidity()) > 2.4) continue;
-         
-        double fj_pt = 0.0;
-        fj_pt = j.pt();
-        if(fj_pt < 0) continue;
-
-        JetCorrectorAK4_DATA->setJetEta(j.pseudorapidity());
-        JetCorrectorAK4_DATA->setJetPt(fj_pt);
-        JetCorrectorAK4_DATA->setJetA(j.area());
-        JetCorrectorAK4_DATA->setRho(rho);
-        correctionJEC = JetCorrectorAK4_DATA->getCorrection();
-    
-        fj_ak4_jec.push_back(correctionJEC);
-        
-        fj_ak4_Ht += fj_pt;
-        fj_ak4_num += 1;
-        fj_ak4_pt.push_back(fj_pt);
-        fj_ak4_eta.push_back(j.pseudorapidity());
-        fj_ak4_phi.push_back(j.phi_std());
-        fj_ak4_m.push_back(j.m());
-        fj_ak4_area.push_back(j.area());
-        
-        fj_ak4_csv.push_back(match_btag(j, 0.01));
-        
-        PseudoJet pruned_ak4 = ak4_pruner(j);
-        fj_ak4_pruned_mass.push_back(pruned_ak4.m());
-        
-        fj_ak4_tau1.push_back(nSub1.result(j));
-        fj_ak4_tau2.push_back(nSub2.result(j));
-        fj_ak4_tau3.push_back(nSub3.result(j));
-        fj_ak4_tau3.push_back(nSub4.result(j));
-        fj_ak4_tau3.push_back(nSub5.result(j));
-        
-        correctionJEC = 1.0;
-    }
-
-    for(auto &j: ak8_jets) {
-        if(fabs(j.pseudorapidity()) > 2.4) continue;
-        
-        double fj_pt = 0.0;
-        fj_pt = j.pt();
-        if(fj_pt < 0) continue;
-        
-        JetCorrectorAK8_DATA->setJetEta(j.pseudorapidity());
-        JetCorrectorAK8_DATA->setJetPt(fj_pt);
-        JetCorrectorAK8_DATA->setJetA(j.area());
-        JetCorrectorAK8_DATA->setRho(rho);
-        correctionJEC = JetCorrectorAK8_DATA->getCorrection();       
-        
-        fj_ak8_jec.push_back(correctionJEC);
-        
-        fj_ak8_Ht += fj_pt;
-        fj_ak8_num += 1;
-        fj_ak8_pt.push_back(fj_pt);
-        fj_ak8_eta.push_back(j.pseudorapidity());
-        fj_ak8_phi.push_back(j.phi_std());
-        fj_ak8_m.push_back(j.m());
-        fj_ak8_area.push_back(j.area());
-        
-        fj_ak8_csv.push_back(match_btag(j, 0.6));
-
-        PseudoJet pruned_ak8 = ak8_pruner(j);
-        fj_ak8_pruned_mass.push_back(pruned_ak8.m());
-        
-        PseudoJet trimmed_ak8 = trimmer(j);
-        fj_ak8_trimmed_mass.push_back(trimmed_ak8.m());
-        
-        fj_ak8_tau1.push_back(nSub1.result(j));
-        fj_ak8_tau2.push_back(nSub2.result(j));
-        fj_ak8_tau3.push_back(nSub3.result(j));
-        fj_ak8_tau4.push_back(nSub4.result(j));
-        fj_ak8_tau5.push_back(nSub5.result(j));
-
-        correctionJEC = 1.0;
-    }
-    
-    for(auto &j: ak11_jets) {
-        if(fabs(j.pseudorapidity()) > 2.4) continue;
-        
-        double fj_pt = 0.0;
-        fj_pt = j.pt();
-        if(fj_pt < 0) continue;
-                        
-        fj_ak11_Ht += fj_pt;
-        fj_ak11_num += 1;
-        fj_ak11_pt.push_back(fj_pt);
-        fj_ak11_eta.push_back(j.pseudorapidity());
-        fj_ak11_phi.push_back(j.phi_std());
-        fj_ak11_m.push_back(j.m());
-        fj_ak11_area.push_back(j.area());
-
-        PseudoJet pruned_ak11 = ak11_pruner(j);
-        fj_ak11_pruned_mass.push_back(pruned_ak11.m());
-        
-        fj_ak11_csv.push_back(match_btag(j, 0.9));
-       
-        PseudoJet trimmed_ak11 = trimmer(j);
-        fj_ak11_trimmed_mass.push_back(trimmed_ak11.m());
-        
-        fj_ak11_tau1.push_back(nSub1.result(j));
-        fj_ak11_tau2.push_back(nSub2.result(j));
-        fj_ak11_tau3.push_back(nSub3.result(j));
-        fj_ak11_tau4.push_back(nSub4.result(j));
-        fj_ak11_tau5.push_back(nSub5.result(j));
-
-    }
-
-    for(auto &j: ca11_jets) {
-        if(fabs(j.pseudorapidity()) > 2.4) continue;
-
-        double fj_pt = 0.0;
-        fj_pt = j.pt();
-        if(fj_pt < 0) continue;
-
-        fj_ca11_Ht += fj_pt;
-        fj_ca11_num += 1;
-        fj_ca11_pt.push_back(fj_pt);
-        fj_ca11_eta.push_back(j.pseudorapidity());
-        fj_ca11_phi.push_back(j.phi_std());
-        fj_ca11_m.push_back(j.m());
-        fj_ca11_area.push_back(j.area());
-
-        PseudoJet pruned_ca11 = ca11_pruner(j);
-        fj_ca11_pruned_mass.push_back(pruned_ca11.m());
-
-        fj_ca11_csv.push_back(match_btag(j, 0.5));
-
-        fj_ca11_tau1.push_back(nSub1.result(j));
-        fj_ca11_tau2.push_back(nSub2.result(j));
-        fj_ca11_tau3.push_back(nSub3.result(j));
-        fj_ca11_tau4.push_back(nSub4.result(j));
-        fj_ca11_tau5.push_back(nSub5.result(j));
-    }   
-
-    return;
-}
-
 
 float SlimmedNtuplizer::match_btag(PseudoJet fj_jet, float delta_r) {
      TLorentzVector fast_jet(0, 0, 0, 0);
