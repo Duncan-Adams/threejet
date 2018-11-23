@@ -1,4 +1,4 @@
-[?1034hType                                                                                                                               Module                                      Label                           Process   
+                                                                                                                         Module                                      Label                           Process   
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 GenEventInfoProduct                                                                                                                "generator"                                 ""                              "SIM"     
 LHEEventProduct                                                                                                                    "externalLHEProducer"                       ""                              "SIM"     

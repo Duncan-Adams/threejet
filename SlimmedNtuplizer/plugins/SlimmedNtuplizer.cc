@@ -97,6 +97,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("muon_pt", &muon_pt);
     tree->Branch("muon_eta", &muon_eta);
     tree->Branch("muon_phi", &muon_phi);
+    tree->Branch("muon_charge", &muon_charge);
     
     // Fast Jet data
     tree->Branch("fj_ak4_HT", &fj_ak4_Ht, "fj_ak4_HT/F");
@@ -257,14 +258,32 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             electron_phi.push_back(e.phi());
 
     }
-
-    for (auto &m: *muons) {
-            muon_pt.push_back(m.pt());
-            muon_eta.push_back(m.eta()); 
-            muon_phi.push_back(m.phi()); 
-    }
     electron_num = electrons->size();
-    muon_num = muons->size(); 
+
+    //IMPORTANT: PF Scouting doesnt save muons in 2017, so use PF candidates with codes +- 13 in DATA
+    if(is_data == false) {
+	    for (auto &m: *muons) {
+	            muon_pt.push_back(m.pt());
+	            muon_eta.push_back(m.eta()); 
+	            muon_phi.push_back(m.phi());
+	            muon_charge.push_back(m.charge()); 
+	    }
+	    muon_num = muons->size();
+    } 
+    
+    if(is_data  == true) {
+	    for(auto &p: *particles) {
+			if(p.pdgId() == 13 or p.pdgId() == -13) {
+			    muon_pt.push_back(p.pt());
+		        muon_eta.push_back(p.eta()); 
+		        muon_phi.push_back(p.phi()); 
+		        muon_num += 1;
+		        muon_charge.push_back(-1*p.pdgId()/13);
+			}
+	    }
+    }
+    
+    
         
     // do fastjet stuff here
     PseudoJet temp_jet = PseudoJet(0, 0, 0, 0);
@@ -286,7 +305,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     vector<PseudoJet> ca11_jets = sorted_by_pt(ca11_cs.inclusive_jets(100));
 
     //Note that fastjet does phi from 0 to 2pi, but CMS does -pi to pi.
-    //the function phi_std() in fastjet uses the CMS comvention
+    //the function phi_std() in fastjet uses the CMS convention
     
     for(auto &j: ak4_jets) {
         if(fabs(j.pseudorapidity()) > 2.4) continue;
@@ -318,7 +337,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         PseudoJet pruned_ak4 = ak4_pruner(j);
         fj_ak4_pruned_mass.push_back(pruned_ak4.m());
         
-        PseudoJet sd_ak4 = sd_groomer_4(j);
+        PseudoJet sd_ak4 = sd_groomer(j);
         fj_ak4_sd_mass.push_back(sd_ak4.m());
         
         fj_ak4_tau1.push_back(nSub1.result(j));
@@ -364,7 +383,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         PseudoJet trimmed_ak8 = trimmer(j);
         fj_ak8_trimmed_mass.push_back(trimmed_ak8.m());
         
-        PseudoJet sd_ak8 = sd_groomer_8(j);
+        PseudoJet sd_ak8 = sd_groomer(j);
         fj_ak8_sd_mass.push_back(sd_ak8.m());
         
         fj_ak8_tau1.push_back(nSub1.result(j));
@@ -399,7 +418,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         PseudoJet trimmed_ak11 = trimmer(j);
         fj_ak11_trimmed_mass.push_back(trimmed_ak11.m());
         
-        PseudoJet sd_ak11 = sd_groomer_11(j);
+        PseudoJet sd_ak11 = sd_groomer(j);
         fj_ak11_sd_mass.push_back(sd_ak11.m());
         
         fj_ak11_tau1.push_back(nSub1.result(j));
@@ -409,6 +428,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         fj_ak11_tau5.push_back(nSub5.result(j));
 
     }
+ 
 
     for(auto &j: ca11_jets) {
         if(fabs(j.pseudorapidity()) > 2.4) continue;
@@ -430,16 +450,15 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
         fj_ca11_csv.push_back(match_btag(j, 0.8));
         
-        PseudoJet sd_ca11 = sd_groomer_11(j);
+        PseudoJet sd_ca11 = sd_groomer(j);
         fj_ca11_sd_mass.push_back(sd_ca11.m());
-
+                
         fj_ca11_tau1.push_back(nSub1.result(j));
         fj_ca11_tau2.push_back(nSub2.result(j));
         fj_ca11_tau3.push_back(nSub3.result(j));
         fj_ca11_tau4.push_back(nSub4.result(j));
         fj_ca11_tau5.push_back(nSub5.result(j));
     }   
-
 
     tree->Fill();
     return;
@@ -495,6 +514,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak4_sd_mass.clear();
     fj_ak4_area.clear();
     fj_ak4_jec.clear();
+    fj_ak4_csv.clear();
     fj_ak4_tau1.clear();
     fj_ak4_tau2.clear();
     fj_ak4_tau3.clear();
@@ -512,6 +532,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak8_trimmed_mass.clear();
     fj_ak8_sd_mass.clear();
     fj_ak8_jec.clear();
+    fj_ak8_csv.clear();
     fj_ak8_tau1.clear();
     fj_ak8_tau2.clear();
     fj_ak8_tau3.clear();
@@ -528,6 +549,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ak11_pruned_mass.clear();
     fj_ak11_trimmed_mass.clear();
     fj_ak11_sd_mass.clear();
+    fj_ak11_csv.clear();
     fj_ak11_tau1.clear();
     fj_ak11_tau2.clear();
     fj_ak11_tau3.clear();
@@ -543,6 +565,7 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ca11_area.clear();
     fj_ca11_pruned_mass.clear();
     fj_ca11_sd_mass.clear();
+    fj_ca11_csv.clear();
     fj_ca11_tau1.clear();
     fj_ca11_tau2.clear();
     fj_ca11_tau3.clear();
@@ -563,7 +586,7 @@ void SlimmedNtuplizer::ResetVariables() {
     muon_pt.clear();
     muon_eta.clear();
     muon_phi.clear();
-    
+    muon_charge.clear();
 
     rho = 0.0;
 
@@ -663,15 +686,15 @@ float SlimmedNtuplizer::match_btag(PseudoJet fj_jet, float delta_r) {
      
      float highest_csv = 0;
      
-     fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi_std(), fj_jet.m());
-     
-     for(int i = 0; i < jet_num; i++) {
-		 hlt_jet.SetPtEtaPhiM(jet_pt[i], jet_eta[i], jet_phi[i], jet_m[i]);
-		 if(hlt_jet.DeltaR(fast_jet) < delta_r) {
-			 highest_csv = fmax(highest_csv, jet_csv[i]);
+		 fast_jet.SetPtEtaPhiM(fj_jet.pt(), fj_jet.pseudorapidity(), fj_jet.phi_std(), fj_jet.m());
+		 
+		 for(int i = 0; i < jet_num; i++) {
+			 hlt_jet.SetPtEtaPhiM(jet_pt[i], jet_eta[i], jet_phi[i], jet_m[i]);
+			 if(hlt_jet.DeltaR(fast_jet) < delta_r) {
+				 highest_csv = fmax(highest_csv, jet_csv[i]);
+			 }
 		 }
-	 }
-	 
+		 
 	 return highest_csv;
 }
 

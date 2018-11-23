@@ -10,7 +10,7 @@
 // Original Author:  Duncan Adams
 //         Created:  2018
 //
-// Based on the work of David Sheffield, Ian Graham, and Abhijith Gandrakota
+// Based on the work of Abhijith Gandrakota, Ian Graham, David Sheffield
 
 
 // System include files
@@ -36,6 +36,13 @@
 #include "DataFormats/Scouting/interface/ScoutingPhoton.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+#include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/PFParticle.h"
+#include "DataFormats/PatCandidates/interface/Particle.h"
 
 // CMSSW include files for JECs
 
@@ -125,6 +132,7 @@ private:
     std::vector<float> muon_pt;
     std::vector<float> muon_eta;
     std::vector<float> muon_phi;
+    std::vector<int>   muon_charge;
     
     // HLT Jet Stuff
     float Ht;
@@ -150,6 +158,10 @@ private:
     JetDefinition ak11_def = JetDefinition(antikt_algorithm, 1.1);
     JetDefinition ca11_def = JetDefinition(cambridge_algorithm, 1.1);
     
+    // For fastjet pruning
+    double zcut = 0.1;
+    double Rcut_factor = 0.5;
+    
     Pruner ak4_pruner = Pruner(ak4_def, zcut, Rcut_factor);
     Pruner ak8_pruner = Pruner(ak8_def, zcut, Rcut_factor);
     Pruner ak11_pruner = Pruner(ak11_def, zcut, Rcut_factor);
@@ -157,12 +169,9 @@ private:
     
     double sd_z_cut = 0.10;
     double sd_beta = 0;
-    
-    
-    SoftDrop sd_groomer_4 = SoftDrop(sd_z_cut, sd_beta, 0.4);
-    SoftDrop sd_groomer_8 = SoftDrop(sd_z_cut, sd_beta, 0.8);
-    SoftDrop sd_groomer_11 = SoftDrop(sd_z_cut, sd_beta, 1.1);
-    
+       
+    SoftDrop sd_groomer = SoftDrop(sd_z_cut, sd_beta, 1.0);
+       
     //Rfilt = 0.2, and SelectorPtFractio min is 0.03
     // Found these in FastJetProducer in cmssw
     Filter trimmer = Filter(JetDefinition(kt_algorithm, 0.2), SelectorPtFractionMin(0.03));
@@ -173,10 +182,6 @@ private:
     Nsubjettiness nSub3 = Nsubjettiness(3, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
     Nsubjettiness nSub4 = Nsubjettiness(4, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
     Nsubjettiness nSub5 = Nsubjettiness(5, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
-    
-    // For fastjet pruning
-    double zcut = 0.1;
-    double Rcut_factor = 0.5;
 
 
     //ak4
@@ -236,7 +241,7 @@ private:
     std::vector<float> fj_ak11_pruned_mass;
     std::vector<float> fj_ak11_trimmed_mass;
     std::vector<float> fj_ak11_sd_mass;
-   
+      
     std::vector<float> fj_ak11_csv;
        
     std::vector<float> fj_ak11_tau1;
