@@ -78,6 +78,7 @@
 
 using namespace fastjet;
 using namespace fastjet::contrib;
+using namespace std;
 
 
 class SlimmedNtuplizer : public edm::EDAnalyzer {
@@ -101,54 +102,8 @@ private:
     // delta_r is used to test if the hlt jet is inside the fastjet jet (i.e. if DR(fj_jet, hlt_jet) < delta_r)
     float match_btag(PseudoJet fj_jet, float delta_r);
     
-    // ----------member data ---------------------------
-    edm::EDGetTokenT<ScoutingPFJetCollection> token_jets;
-    edm::EDGetTokenT<ScoutingParticleCollection> token_particles;
-    edm::EDGetTokenT<double> token_rho;
-
-    edm::Handle<ScoutingPFJetCollection> jets;
-    edm::Handle<ScoutingParticleCollection> particles;
-    edm::Handle<double> handle_rho;
-    
-    edm::EDGetTokenT<ScoutingElectronCollection> token_electrons;
-    edm::EDGetTokenT<ScoutingMuonCollection> token_muons;
-
-    edm::Handle<ScoutingElectronCollection> electrons;
-    edm::Handle<ScoutingMuonCollection> muons;
-    
-    std::string file_name;
-    TFile *file;
-    TTree *tree;
-
-    int event_num_;
-    
-    // lepton variables
-    int electron_num;
-    std::vector<float> electron_pt;
-    std::vector<float> electron_eta;
-    std::vector<float> electron_phi;
-    
-    int muon_num;
-    std::vector<float> muon_pt;
-    std::vector<float> muon_eta;
-    std::vector<float> muon_phi;
-    std::vector<int>   muon_charge;
-    
-    // HLT Jet Stuff
-    float Ht;
-    //~ float HtJEC;
-    int jet_num;
-    std::vector<float> jet_pt;
-    std::vector<float> jet_eta;
-    std::vector<float> jet_phi;
-    std::vector<float> jet_m;
-    std::vector<float> jet_csv;
-    std::vector<float> jet_area;
-    
-    std::vector<float> jet_energy_correction;
-    
     // Fast jet stuff
-    std::vector<fastjet::PseudoJet> fj_part;
+    vector<fastjet::PseudoJet> fj_part;
     
     GhostedAreaSpec area_spec;
     AreaDefinition area_def;
@@ -182,104 +137,30 @@ private:
     Nsubjettiness nSub3 = Nsubjettiness(3, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
     Nsubjettiness nSub4 = Nsubjettiness(4, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
     Nsubjettiness nSub5 = Nsubjettiness(5, OnePass_WTA_KT_Axes(), UnnormalizedMeasure(beta));
+    
+    // Handles and Tokens
+    edm::EDGetTokenT<ScoutingPFJetCollection> token_jets;
+    edm::EDGetTokenT<ScoutingParticleCollection> token_particles;
+    edm::EDGetTokenT<double> token_rho;
 
+    edm::Handle<ScoutingPFJetCollection> jets;
+    edm::Handle<ScoutingParticleCollection> particles;
+    edm::Handle<double> handle_rho;
+    
+    edm::EDGetTokenT<ScoutingElectronCollection> token_electrons;
+    edm::EDGetTokenT<ScoutingMuonCollection> token_muons;
 
-    //ak4
-    float fj_ak4_Ht;
-    int fj_ak4_num;
-    std::vector<float> fj_ak4_pt;
-    std::vector<float> fj_ak4_eta;
-    std::vector<float> fj_ak4_phi;
-    std::vector<float> fj_ak4_m;
-    std::vector<float> fj_ak4_area;
+    edm::Handle<ScoutingElectronCollection> electrons;
+    edm::Handle<ScoutingMuonCollection> muons;
     
-    std::vector<float> fj_ak4_pruned_mass;
-    std::vector<float> fj_ak4_sd_mass;
-    
-    std::vector<float> fj_ak4_jec;
-    
-    std::vector<float> fj_ak4_csv;
-    
-    std::vector<float> fj_ak4_tau1;
-    std::vector<float> fj_ak4_tau2;
-    std::vector<float> fj_ak4_tau3;
-    std::vector<float> fj_ak4_tau4;
-    std::vector<float> fj_ak4_tau5;
-    
-    //ak8
-    float fj_ak8_Ht;
-    int fj_ak8_num;
-    std::vector<float> fj_ak8_pt;
-    std::vector<float> fj_ak8_eta;
-    std::vector<float> fj_ak8_phi;
-    std::vector<float> fj_ak8_m;
-    std::vector<float> fj_ak8_area;
-    
-    std::vector<float> fj_ak8_pruned_mass;
-    std::vector<float> fj_ak8_trimmed_mass;
-    std::vector<float> fj_ak8_sd_mass;
-    
-    std::vector<float> fj_ak8_jec;
-    
-    std::vector<float> fj_ak8_csv;
-    
-    std::vector<float> fj_ak8_tau1;
-    std::vector<float> fj_ak8_tau2;
-    std::vector<float> fj_ak8_tau3;
-    std::vector<float> fj_ak8_tau4;
-    std::vector<float> fj_ak8_tau5;
-    
-    //ak8
-    float fj_ak11_Ht;
-    int fj_ak11_num;
-    std::vector<float> fj_ak11_pt;
-    std::vector<float> fj_ak11_eta;
-    std::vector<float> fj_ak11_phi;
-    std::vector<float> fj_ak11_m;
-    std::vector<float> fj_ak11_area;
-    
-    std::vector<float> fj_ak11_pruned_mass;
-    std::vector<float> fj_ak11_trimmed_mass;
-    std::vector<float> fj_ak11_sd_mass;
-      
-    std::vector<float> fj_ak11_csv;
-       
-    std::vector<float> fj_ak11_tau1;
-    std::vector<float> fj_ak11_tau2;
-    std::vector<float> fj_ak11_tau3;
-    std::vector<float> fj_ak11_tau4;
-    std::vector<float> fj_ak11_tau5;
-    
-    //c/a 1.1
-    float fj_ca11_Ht;
-    int fj_ca11_num;
-    std::vector<float> fj_ca11_pt;
-    std::vector<float> fj_ca11_eta;
-    std::vector<float> fj_ca11_phi;
-    std::vector<float> fj_ca11_m;
-    std::vector<float> fj_ca11_area;
+    std::string file_name;
+    TFile *file;
+    TTree *tree;
 
-    std::vector<float> fj_ca11_pruned_mass;
-    std::vector<float> fj_ca11_sd_mass;
+    int event_num_;
     
-    std::vector<float> fj_ca11_csv;
+    bool is_data;
     
-    std::vector<float> fj_ca11_tau1;
-    std::vector<float> fj_ca11_tau2;
-    std::vector<float> fj_ca11_tau3;
-    std::vector<float> fj_ca11_tau4;
-    std::vector<float> fj_ca11_tau5;
-
-    // Rho and MET 
-    float rho;
-    
-    int particle_num;
-    std::vector<float> particle_pt;
-    std::vector<float> particle_eta;
-    std::vector<float> particle_phi;
-    std::vector<float> particle_m;
-
-
     // for JECs
     std::string L1corrAK4_DATA_; 
     std::string L2corrAK4_DATA_;
@@ -302,11 +183,140 @@ private:
     JetCorrectorParameters *L3ParAK8_DATA;
     JetCorrectorParameters *L2L3ResAK8_DATA;
     FactorizedJetCorrector *JetCorrectorAK8_DATA;
+    
+    
+    //Everything Below goes into branches
+    
+    // lepton variables
+    int electron_num;
+    vector<float> electron_pt;
+    vector<float> electron_eta;
+    vector<float> electron_phi;
+    
+    int muon_num;
+    vector<float> muon_pt;
+    vector<float> muon_eta;
+    vector<float> muon_phi;
+    vector<int>   muon_charge;
+    
+    int hlt_muon_num;
+    vector<float> hlt_muon_pt;
+    vector<float> hlt_muon_eta;
+    vector<float> hlt_muon_phi;
+    vector<float> hlt_muon_charge;
+    
+    
+    // HLT Jet Stuff
+    float Ht;
+    int jet_num;
+    vector<float> jet_pt;
+    vector<float> jet_eta;
+    vector<float> jet_phi;
+    vector<float> jet_m;
+    vector<float> jet_csv;
+    vector<float> jet_area;
+    
+    vector<float> jet_energy_correction;
+
+    //ak4
+    float fj_ak4_Ht;
+    int fj_ak4_num;
+    vector<float> fj_ak4_pt;
+    vector<float> fj_ak4_eta;
+    vector<float> fj_ak4_phi;
+    vector<float> fj_ak4_m;
+    vector<float> fj_ak4_area;
+    
+    vector<float> fj_ak4_pruned_mass;
+    vector<float> fj_ak4_sd_mass;
+    
+    vector<float> fj_ak4_jec;
+    
+    vector<float> fj_ak4_csv;
+    
+    vector<float> fj_ak4_tau1;
+    vector<float> fj_ak4_tau2;
+    vector<float> fj_ak4_tau3;
+    vector<float> fj_ak4_tau4;
+    vector<float> fj_ak4_tau5;
+    
+    //ak8
+    float fj_ak8_Ht;
+    int fj_ak8_num;
+    vector<float> fj_ak8_pt;
+    vector<float> fj_ak8_eta;
+    vector<float> fj_ak8_phi;
+    vector<float> fj_ak8_m;
+    vector<float> fj_ak8_area;
+    
+    vector<float> fj_ak8_pruned_mass;
+    vector<float> fj_ak8_trimmed_mass;
+    vector<float> fj_ak8_sd_mass;
+    
+    vector<float> fj_ak8_jec;
+    
+    vector<float> fj_ak8_csv;
+    
+    vector<float> fj_ak8_tau1;
+    vector<float> fj_ak8_tau2;
+    vector<float> fj_ak8_tau3;
+    vector<float> fj_ak8_tau4;
+    vector<float> fj_ak8_tau5;
+    
+    //ak8
+    float fj_ak11_Ht;
+    int fj_ak11_num;
+    vector<float> fj_ak11_pt;
+    vector<float> fj_ak11_eta;
+    vector<float> fj_ak11_phi;
+    vector<float> fj_ak11_m;
+    vector<float> fj_ak11_area;
+    
+    vector<float> fj_ak11_pruned_mass;
+    vector<float> fj_ak11_trimmed_mass;
+    vector<float> fj_ak11_sd_mass;
+      
+    vector<float> fj_ak11_csv;
+       
+    vector<float> fj_ak11_tau1;
+    vector<float> fj_ak11_tau2;
+    vector<float> fj_ak11_tau3;
+    vector<float> fj_ak11_tau4;
+    vector<float> fj_ak11_tau5;
+    
+    //c/a 1.1
+    float fj_ca11_Ht;
+    int fj_ca11_num;
+    vector<float> fj_ca11_pt;
+    vector<float> fj_ca11_eta;
+    vector<float> fj_ca11_phi;
+    vector<float> fj_ca11_m;
+    vector<float> fj_ca11_area;
+
+    vector<float> fj_ca11_pruned_mass;
+    vector<float> fj_ca11_sd_mass;
+    
+    vector<float> fj_ca11_csv;
+    
+    vector<float> fj_ca11_tau1;
+    vector<float> fj_ca11_tau2;
+    vector<float> fj_ca11_tau3;
+    vector<float> fj_ca11_tau4;
+    vector<float> fj_ca11_tau5;
+
+    // Rho and MET 
+    float rho;
+    
+    int particle_num;
+    vector<float> particle_pt;
+    vector<float> particle_eta;
+    vector<float> particle_phi;
+    vector<float> particle_m;
    
     int run;
     int lumi;
     int event;
 
-    bool is_data;
+
 };
 

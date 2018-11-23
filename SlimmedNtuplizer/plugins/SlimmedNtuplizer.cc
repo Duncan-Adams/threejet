@@ -76,7 +76,26 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
 	    JetCorrectorAK8_DATA = new FactorizedJetCorrector(vParAK8_DATA);
 	}
 
-    // HLT Jet data
+ 
+    //Leptons 
+    tree->Branch("electron_num", &electron_num, "electron_num/I");
+    tree->Branch("electron_pt", &electron_pt);
+    tree->Branch("electron_eta", &electron_eta);
+    tree->Branch("electron_phi", &electron_phi);
+    
+    tree->Branch("muon_num", &muon_num, "muon_num/I");
+    tree->Branch("muon_pt", &muon_pt);
+    tree->Branch("muon_eta", &muon_eta);
+    tree->Branch("muon_phi", &muon_phi);
+    tree->Branch("muon_charge", &muon_charge);
+    
+    tree->Branch("hlt_muon_num", &hlt_muon_num, "hlt_muon_num/I");
+    tree->Branch("hlt_muon_pt", &hlt_muon_pt);
+    tree->Branch("hlt_muon_eta", &hlt_muon_eta);
+    tree->Branch("hlt_muon_phi", &hlt_muon_phi);
+    tree->Branch("hlt_muon_charge", &hlt_muon_charge);
+    
+    // HLT Jets
     tree->Branch("HT", &Ht, "HT/F");
     tree->Branch("jet_num", &jet_num, "jet_num/I");
     tree->Branch("jet_pt", &jet_pt);
@@ -88,16 +107,6 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     
     tree->Branch("jet_energy_correction", &jet_energy_correction);
     tree->Branch("jet_csv", &jet_csv);
-    
-    tree->Branch("electron_num", &electron_num, "electron_num/I");
-    tree->Branch("electron_pt", &electron_pt);
-    tree->Branch("electron_eta", &electron_eta);
-    tree->Branch("electron_phi", &electron_phi);
-    tree->Branch("muon_num", &muon_num, "muon_num/I");
-    tree->Branch("muon_pt", &muon_pt);
-    tree->Branch("muon_eta", &muon_eta);
-    tree->Branch("muon_phi", &muon_phi);
-    tree->Branch("muon_charge", &muon_charge);
     
     // Fast Jet data
     tree->Branch("fj_ak4_HT", &fj_ak4_Ht, "fj_ak4_HT/F");
@@ -251,7 +260,6 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         correctionJEC = 1.0;
     }
     
-    //Call fill_leptons helper function to fill electron and muon variables
     for (auto &e: *electrons) {
             electron_pt.push_back(e.pt());
             electron_eta.push_back(e.eta());
@@ -260,28 +268,25 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
     electron_num = electrons->size();
 
-    //IMPORTANT: PF Scouting doesnt save muons in 2017, so use PF candidates with codes +- 13 in DATA
-    if(is_data == false) {
-	    for (auto &m: *muons) {
-	            muon_pt.push_back(m.pt());
-	            muon_eta.push_back(m.eta()); 
-	            muon_phi.push_back(m.phi());
-	            muon_charge.push_back(m.charge()); 
-	    }
-	    muon_num = muons->size();
-    } 
-    
-    if(is_data  == true) {
-	    for(auto &p: *particles) {
-			if(p.pdgId() == 13 or p.pdgId() == -13) {
-			    muon_pt.push_back(p.pt());
-		        muon_eta.push_back(p.eta()); 
-		        muon_phi.push_back(p.phi()); 
-		        muon_num += 1;
-		        muon_charge.push_back(-1*p.pdgId()/13);
-			}
-	    }
+    for (auto &m: *muons) {
+            hlt_muon_pt.push_back(m.pt());
+            hlt_muon_eta.push_back(m.eta()); 
+            hlt_muon_phi.push_back(m.phi());
+            hlt_muon_charge.push_back(m.charge()); 
     }
+    hlt_muon_num = muons->size();
+    
+
+    for(auto &p: *particles) {
+		if(p.pdgId() == 13 or p.pdgId() == -13) {
+		    muon_pt.push_back(p.pt());
+	        muon_eta.push_back(p.eta()); 
+	        muon_phi.push_back(p.phi()); 
+	        muon_num += 1;
+	        muon_charge.push_back(-1*p.pdgId()/13);
+		}
+    }
+
     
     
         
@@ -487,9 +492,31 @@ void SlimmedNtuplizer::fillDescriptions(edm::ConfigurationDescriptions& descript
 
 
 void SlimmedNtuplizer::ResetVariables() {
-    Ht = 0.0;
+    //Pf particles
+    particle_num = 0;
+    particle_pt.clear();
+    particle_eta.clear();
+    particle_phi.clear();
 
+    electron_num = 0;
+    electron_pt.clear();
+    electron_eta.clear();
+    electron_phi.clear();
+    
+    muon_num = 0;
+    muon_pt.clear();
+    muon_eta.clear();
+    muon_phi.clear();
+    muon_charge.clear();
+     
+    hlt_muon_num = 0;
+    hlt_muon_pt.clear();
+    hlt_muon_eta.clear();
+    hlt_muon_phi.clear();
+    hlt_muon_charge.clear();
+    
     // jets
+    Ht = 0.0;
     jet_num = 0;
     jet_pt.clear();
 
@@ -571,22 +598,6 @@ void SlimmedNtuplizer::ResetVariables() {
     fj_ca11_tau3.clear();
     fj_ca11_tau4.clear();
     fj_ca11_tau5.clear();
-    
-    //Pf particles
-    particle_num = 0;
-    particle_pt.clear();
-    particle_eta.clear();
-    particle_phi.clear();
-
-    electron_num = 0;
-    electron_pt.clear();
-    electron_eta.clear();
-    electron_phi.clear();
-    muon_num = 0;
-    muon_pt.clear();
-    muon_eta.clear();
-    muon_phi.clear();
-    muon_charge.clear();
 
     rho = 0.0;
 
@@ -597,8 +608,7 @@ void SlimmedNtuplizer::ResetVariables() {
     return;
 }
 
-int SlimmedNtuplizer::GetCollections(const edm::Event& iEvent)
-{
+int SlimmedNtuplizer::GetCollections(const edm::Event& iEvent) {
     // Get collections from ntuple
     // Returns nonzero if there is a problem getting a collection
     
