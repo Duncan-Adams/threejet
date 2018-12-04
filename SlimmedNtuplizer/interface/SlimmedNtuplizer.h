@@ -198,6 +198,7 @@ private:
     vector<float> muon_eta;
     vector<float> muon_phi;
     vector<int>   muon_charge;
+    vector<float> muon_m;
     
     int hlt_muon_num;
     vector<float> hlt_muon_pt;

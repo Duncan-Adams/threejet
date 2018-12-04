@@ -6,7 +6,7 @@ process.load("FWCore.MessageService.MessageLogger_cfi")
 
 options = VarParsing.VarParsing('analysis')
 options.outputFile = 'slimmed_ntuple_testing.root'
-options.inputFiles = 'file:./test_miniaod.root'
+options.inputFiles = 'file:./testfile.root'
 options.maxEvents = -1
 options.register('reportEvery',
                  1000000, # default value

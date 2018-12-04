@@ -88,6 +88,7 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     tree->Branch("muon_eta", &muon_eta);
     tree->Branch("muon_phi", &muon_phi);
     tree->Branch("muon_charge", &muon_charge);
+    tree->Branch("muon_m", &muon_m);
     
     tree->Branch("hlt_muon_num", &hlt_muon_num, "hlt_muon_num/I");
     tree->Branch("hlt_muon_pt", &hlt_muon_pt);
@@ -272,7 +273,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
             hlt_muon_pt.push_back(m.pt());
             hlt_muon_eta.push_back(m.eta()); 
             hlt_muon_phi.push_back(m.phi());
-            hlt_muon_charge.push_back(m.charge()); 
+            hlt_muon_charge.push_back(m.charge());
     }
     hlt_muon_num = muons->size();
     
@@ -284,6 +285,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	        muon_phi.push_back(p.phi()); 
 	        muon_num += 1;
 	        muon_charge.push_back(-1*p.pdgId()/13);
+            muon_m.push_back(p.m());
 		}
     }
 
@@ -508,6 +510,7 @@ void SlimmedNtuplizer::ResetVariables() {
     muon_eta.clear();
     muon_phi.clear();
     muon_charge.clear();
+    muon_m.clear();
      
     hlt_muon_num = 0;
     hlt_muon_pt.clear();
