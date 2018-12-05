@@ -231,7 +231,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (fabs(j.eta()) > 2.4) 
             continue;
             
-        if(j.pt() < 20)
+        if(j.pt() < 30)
             continue;
         
         if(JetID(j) == false)
@@ -306,7 +306,7 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     ClusterSequenceArea ak11_cs(fj_part, ak11_def, area_def);
     ClusterSequenceArea ca11_cs(fj_part, ca11_def, area_def);
     
-    vector<PseudoJet> ak4_jets = sorted_by_pt(ak4_cs.inclusive_jets(20));
+    vector<PseudoJet> ak4_jets = sorted_by_pt(ak4_cs.inclusive_jets(30));
     vector<PseudoJet> ak8_jets = sorted_by_pt(ak8_cs.inclusive_jets(100));
     vector<PseudoJet> ak11_jets = sorted_by_pt(ak11_cs.inclusive_jets(100));
     vector<PseudoJet> ca11_jets = sorted_by_pt(ca11_cs.inclusive_jets(100));
