@@ -29,50 +29,54 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     token_jets(consumes<ScoutingPFJetCollection>(iConfig.getParameter<InputTag>("jet_collection"))),
     token_particles(consumes<ScoutingParticleCollection>(iConfig.getParameter<InputTag>("particle_collection"))),
     token_rho(consumes<double>(iConfig.getParameter<InputTag>("rho"))),
+    token_MET(consumes<double>(iConfig.getParameter<InputTag>("MET"))),
+    token_MET_phi(consumes<double>(iConfig.getParameter<InputTag>("MET_phi"))),
+    token_photons(consumes<ScoutingPhotonCollection>(iConfig.getParameter<InputTag>("photon_collection"))),
     token_electrons(consumes<ScoutingElectronCollection>(iConfig.getParameter<InputTag>("electron_collection"))),
     token_muons(consumes<ScoutingMuonCollection>(iConfig.getParameter<InputTag>("muon_collection"))),
     file_name(iConfig.getParameter<string>("output_file_name")),
-    is_data(iConfig.getParameter<bool>("is_data"))
+    is_data(iConfig.getParameter<bool>("is_data")),
+    slimmed(iConfig.getParameter<bool>("slimmed"))
 {
     //now do what ever initialization is needed
     file = new TFile(file_name.c_str(), "RECREATE");
     tree = new TTree("events", "Tree for scouting data");
-    
+
     if(is_data) {
 	    L1corrAK4_DATA_ = iConfig.getParameter<string>("L1corrAK4_DATA");
 	    L2corrAK4_DATA_ = iConfig.getParameter<string>("L2corrAK4_DATA");
 	    L3corrAK4_DATA_ = iConfig.getParameter<string>("L3corrAK4_DATA");
 	    L2L3corrAK4_DATA_ = iConfig.getParameter<string>("L2L3corrAK4_DATA");
-	  
+
 	    L1ParAK4_DATA = new JetCorrectorParameters(L1corrAK4_DATA_);
 	    L2ParAK4_DATA = new JetCorrectorParameters(L2corrAK4_DATA_);
 	    L3ParAK4_DATA = new JetCorrectorParameters(L3corrAK4_DATA_);
 	    L2L3ResAK4_DATA = new JetCorrectorParameters(L2L3corrAK4_DATA_);
-	
+
 	    vector<JetCorrectorParameters> vParAK4_DATA;
 	    vParAK4_DATA.push_back(*L1ParAK4_DATA);
 	    vParAK4_DATA.push_back(*L2ParAK4_DATA);
 	    vParAK4_DATA.push_back(*L3ParAK4_DATA);
 	    vParAK4_DATA.push_back(*L2L3ResAK4_DATA);
-	
+
 	    JetCorrectorAK4_DATA = new FactorizedJetCorrector(vParAK4_DATA);
-	    
+
 	    L1corrAK8_DATA_ = iConfig.getParameter<string>("L1corrAK8_DATA");
 	    L2corrAK8_DATA_ = iConfig.getParameter<string>("L2corrAK8_DATA");
 	    L3corrAK8_DATA_ = iConfig.getParameter<string>("L3corrAK8_DATA");
 	    L2L3corrAK8_DATA_ = iConfig.getParameter<string>("L2L3corrAK8_DATA");
-	
+
 	    L1ParAK8_DATA = new JetCorrectorParameters(L1corrAK8_DATA_.c_str());
 	    L2ParAK8_DATA = new JetCorrectorParameters(L2corrAK8_DATA_.c_str());
 	    L3ParAK8_DATA = new JetCorrectorParameters(L3corrAK8_DATA_.c_str());
 	    L2L3ResAK8_DATA = new JetCorrectorParameters(L2L3corrAK8_DATA_.c_str());
-	
+
 	    vector<JetCorrectorParameters> vParAK8_DATA;
 	    vParAK8_DATA.push_back(*L1ParAK8_DATA);
 	    vParAK8_DATA.push_back(*L2ParAK8_DATA);
 	    vParAK8_DATA.push_back(*L3ParAK8_DATA);
 	    vParAK8_DATA.push_back(*L2L3ResAK8_DATA);
-	
+
 	    JetCorrectorAK8_DATA = new FactorizedJetCorrector(vParAK8_DATA);
 	}
 
@@ -180,17 +184,40 @@ SlimmedNtuplizer::SlimmedNtuplizer(const edm::ParameterSet& iConfig):
     
     // Event Data 
     tree->Branch("rho", &rho, "rho/F");
+    tree->Branch("MET", &MET);
+    tree->Branch("MET_phi", &MET_phi);
+    
     tree->Branch("Run", &run, "Run/I");
     tree->Branch("Lumi", &lumi, "Lumi/I");
     tree->Branch("Event", &event, "Event/I");
 
+    if(slimmed == false) {
+	    // Photon Data
+	    tree->Branch("photon_num", &photon_num, "photon_num/I");
+	    tree->Branch("photon_pt", &photon_pt);
+	    tree->Branch("photon_eta", &photon_eta);
+	    tree->Branch("photon_phi", &photon_phi);  
+
+	    tree->Branch("photon_sigmaIetaIeta", &photon_sigmaIetaIeta);    
+	    tree->Branch("photon_hOverE", &photon_hOverE);    
+	    tree->Branch("photon_ecalIso", &photon_ecalIso);    
+	    tree->Branch("photon_hcalIso", &photon_hcalIso);    
+
+	    //PF Candidates
+	    tree->Branch("particle_num", &particle_num, "particle_num/I");
+	    tree->Branch("particle_pt", &particle_pt);
+	    tree->Branch("particle_eta", &particle_eta);
+	    tree->Branch("particle_phi", &particle_phi);
+	    tree->Branch("particle_m", &particle_m);
+	    tree->Branch("particle_id", &particle_id, "particle_id/I");
+	}
 
     // Setup Fastjet
 
     double max_ghost_rap = 5;
     unsigned int n_repeat = 1;
     double ghost_area = 0.01; //default setting used in fast jet
-    
+
     area_spec = GhostedAreaSpec(max_ghost_rap, n_repeat, ghost_area);
     area_def = AreaDefinition(fastjet::active_area, area_spec);
 }
@@ -466,6 +493,31 @@ void SlimmedNtuplizer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         fj_ca11_tau4.push_back(nSub4.result(j));
         fj_ca11_tau5.push_back(nSub5.result(j));
     }   
+    
+    if(slimmed == false) {
+		
+        for (auto &p: *photons) {		
+		photon_pt.push_back(p.pt());
+         	photon_eta.push_back(p.eta());
+		photon_phi.push_back(p.phi());
+		photon_m.push_back(p.m());
+		
+		photon_sigmaIetaIeta.push_back(p.sigmaIetaIeta());
+		photon_hOverE.push_back(p.hOverE());
+		photon_ecalIso.push_back(p.ecalIso());
+		photon_hcalIso.push_back(p.hcalIso());		
+	    }
+		photon_num = photons->size();
+	
+		for(auto &p: *particles) {
+	        particle_num += 1;
+	        particle_pt.push_back(p.pt());
+	        particle_eta.push_back(p.eta());
+	        particle_phi.push_back(p.phi());
+	        particle_m.push_back(p.m());
+	        particle_id.push_back(p.pdgId());
+	    }
+	}
 
     tree->Fill();
     return;
@@ -499,7 +551,9 @@ void SlimmedNtuplizer::ResetVariables() {
     particle_pt.clear();
     particle_eta.clear();
     particle_phi.clear();
-
+    particle_m.clear();
+	particle_id.clear();
+	    
     electron_num = 0;
     electron_pt.clear();
     electron_eta.clear();
@@ -608,6 +662,19 @@ void SlimmedNtuplizer::ResetVariables() {
     lumi = 0;
     event = 0;
 
+    if(slimmed == false) {
+	    // Photon Data
+	    photon_num = 0;
+	    photon_pt.clear();
+	    photon_eta.clear();
+	    photon_phi.clear();  
+	      
+	    photon_sigmaIetaIeta.clear();    
+	    photon_hOverE.clear();    
+	    photon_ecalIso.clear();    
+	    photon_hcalIso.clear();    
+	}
+
     return;
 }
 
@@ -639,6 +706,14 @@ int SlimmedNtuplizer::GetCollections(const edm::Event& iEvent) {
     return 1;
     }
     
+    // Get Photons
+    iEvent.getByToken(token_photons, photons);
+    if (!photons.isValid()) {
+        throw edm::Exception(edm::errors::ProductNotFound)
+        << "Could not find ScoutingEgammaCollection." << endl;
+        return 1;
+    }
+    
     // Get electrons
     iEvent.getByToken(token_electrons, electrons);
     if (!electrons.isValid()) {
@@ -654,6 +729,20 @@ int SlimmedNtuplizer::GetCollections(const edm::Event& iEvent) {
     return 1;
     }
 
+    // Get MET
+    iEvent.getByToken(token_MET, handle_MET);
+    if (!handle_MET.isValid()) {
+        throw edm::Exception(edm::errors::ProductNotFound)
+        << "Could not find MET." << endl;
+    return 1;
+    }
+
+    iEvent.getByToken(token_MET_phi, handle_MET_phi);
+    if (!handle_MET_phi.isValid()) {
+        throw edm::Exception(edm::errors::ProductNotFound)
+        << "Could not find MET_phi." << endl;
+    return 1;
+    }
     
     return 0;
 }

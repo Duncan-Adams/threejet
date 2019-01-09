@@ -26,6 +26,7 @@ process.source = cms.Source(
 process.load('threejet.SlimmedNtuplizer.slimmedntuplizer_cfi')
 
 process.slimmedntuplizer.output_file_name = cms.string(options.outputFile)
+process.slimmedntuplizer.slimmed = cms.bool(False)
 
 #### Redefine JEC variables here
 

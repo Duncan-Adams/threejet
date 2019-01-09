@@ -4,7 +4,7 @@
 // Class:      SlimmedNtuplizer
 //
 /**\class SlimmedNtuplizer SlimmedNtuplizer.h ThreeJetAnalysis/Slimmed/interface/SlimmedNtuplizer.h
- Description: Code to monitor Slimmed streams.
+ Description: Produce Ntuples for PF Scouting Data and Monte Carlo
 */
 //
 // Original Author:  Duncan Adams
@@ -140,32 +140,43 @@ private:
     
     // Handles and Tokens
     edm::EDGetTokenT<ScoutingPFJetCollection> token_jets;
-    edm::EDGetTokenT<ScoutingParticleCollection> token_particles;
-    edm::EDGetTokenT<double> token_rho;
-
-    edm::Handle<ScoutingPFJetCollection> jets;
-    edm::Handle<ScoutingParticleCollection> particles;
-    edm::Handle<double> handle_rho;
+	edm::Handle<ScoutingPFJetCollection> jets;
     
-    edm::EDGetTokenT<ScoutingElectronCollection> token_electrons;
-    edm::EDGetTokenT<ScoutingMuonCollection> token_muons;
-
+    edm::EDGetTokenT<ScoutingParticleCollection> token_particles;
+	edm::Handle<ScoutingParticleCollection> particles;
+    
+    edm::EDGetTokenT<double> token_rho;
+	edm::Handle<double> handle_rho;
+    
+    edm::EDGetTokenT<double> token_MET;
+	edm::Handle<double> handle_MET;
+    
+    edm::EDGetTokenT<double> token_MET_phi;
+    edm::Handle<double> handle_MET_phi;
+        
+    edm::EDGetTokenT<ScoutingPhotonCollection> token_photons;
+    edm::Handle<ScoutingPhotonCollection> photons;
+    
+    edm::EDGetTokenT<ScoutingElectronCollection> token_electrons; 
     edm::Handle<ScoutingElectronCollection> electrons;
+    
+    edm::EDGetTokenT<ScoutingMuonCollection> token_muons;
     edm::Handle<ScoutingMuonCollection> muons;
     
-    std::string file_name;
+    string file_name;
     TFile *file;
     TTree *tree;
 
     int event_num_;
     
     bool is_data;
+    bool slimmed;  // IF false, save photons and all Scouting Pf Candidates
     
     // for JECs
-    std::string L1corrAK4_DATA_; 
-    std::string L2corrAK4_DATA_;
-    std::string L3corrAK4_DATA_;
-    std::string L2L3corrAK4_DATA_;
+    string L1corrAK4_DATA_; 
+    string L2corrAK4_DATA_;
+    string L3corrAK4_DATA_;
+    string L2L3corrAK4_DATA_;
     
     JetCorrectorParameters *L1ParAK4_DATA;
     JetCorrectorParameters *L2ParAK4_DATA;
@@ -173,10 +184,10 @@ private:
     JetCorrectorParameters *L2L3ResAK4_DATA;
     FactorizedJetCorrector *JetCorrectorAK4_DATA;
     
-    std::string L1corrAK8_DATA_;
-    std::string L2corrAK8_DATA_;
-    std::string L3corrAK8_DATA_;
-    std::string L2L3corrAK8_DATA_;
+    string L1corrAK8_DATA_;
+    string L2corrAK8_DATA_;
+    string L3corrAK8_DATA_;
+    string L2L3corrAK8_DATA_;
     
     JetCorrectorParameters *L1ParAK8_DATA;
     JetCorrectorParameters *L2ParAK8_DATA;
@@ -307,17 +318,33 @@ private:
 
     // Rho and MET 
     float rho;
+    float MET;
+    float MET_phi;
     
     int particle_num;
     vector<float> particle_pt;
     vector<float> particle_eta;
     vector<float> particle_phi;
     vector<float> particle_m;
+    vector<int> particle_id;
    
     int run;
     int lumi;
     int event;
+    
+    //Extra Stuff when not running in Slimmed Mode
+    // Photon Stuff
 
+	int photon_num;
+	vector<float> photon_pt;
+	vector<float> photon_eta;
+	vector<float> photon_phi;
+	vector<float> photon_m;
+	
+	vector<float> photon_sigmaIetaIeta;
+	vector<float> photon_hOverE;
+	vector<float> photon_ecalIso;
+	vector<float> photon_hcalIso;
 
 };
 

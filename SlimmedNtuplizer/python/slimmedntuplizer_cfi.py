@@ -5,9 +5,13 @@ slimmedntuplizer = cms.EDAnalyzer(
     jet_collection       = cms.InputTag('hltScoutingPFPacker'),
     particle_collection  = cms.InputTag('hltScoutingPFPacker'),
     rho                  = cms.InputTag('hltScoutingPFPacker:rho'),
+    MET			 = cms.InputTag('hltScoutingPFPacker:pfMetPt'),
+    MET_phi		 = cms.InputTag('hltScoutingPFPacker:pfMetPhi'),
+    photon_collection	= cms.InputTag('hltScoutingEgammaPacker'),
     electron_collection	 = cms.InputTag('hltScoutingEgammaPacker'),
     muon_collection      = cms.InputTag('hltScoutingMuonPacker'),
     is_data              = cms.bool(True),
+    slimmed              = cms.bool(True),
 
     # JECs
 	####### 2017 PF Scouting #######
