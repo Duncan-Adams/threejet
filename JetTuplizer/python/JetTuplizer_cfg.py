@@ -23,11 +23,9 @@ process.source = cms.Source(
                             fileNames = cms.untracked.vstring(options.inputFiles)
                             )
 
-process.load('threejet.JetTuplizer.JetTuplizer_cfi')
+process.load('threejet.JetTuplizer.jettuplizer_cfi')
 
 process.jettuplizer.output_file_name = cms.string(options.outputFile)
-
-#### Redefine JEC variables here
 
 process.options = cms.untracked.PSet(SkipEvent = cms.untracked.vstring('ProductNotFound'))
 process.p = cms.Path(process.jettuplizer)

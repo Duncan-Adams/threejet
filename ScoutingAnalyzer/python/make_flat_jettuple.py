@@ -39,7 +39,9 @@ data_chain.SetBranchStatus("fj_ak4_tau3", 0)
 #### Add masym to tree
 #### Add tau for subleading
 
-#variables
+#gen ak8 and ak11
+
+#scouting ak8 and ak11
 ak8_pt_0 = array("f", [0.0])
 ak8_eta_0 = array("f", [0.0])
 ak8_phi_0 = array("f", [0.0])
@@ -57,11 +59,10 @@ tau1_1 = array("f", [0.0])
 tau2_1 = array("f", [0.0])
 tau3_1 = array("f", [0.0])
 
-csv_0 = array("f", [0.0])
-csv_1 = array("f", [0.0])
-
 mass_asym_f = array("f", [0.0])
 mass_avg = array("f", [0.0])
+
+#reco ak8 and ak11
 
 # Book Tree
 tree = TTree("events", 'flat tree with jets')

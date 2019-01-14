@@ -95,18 +95,15 @@ private:
     virtual void beginJob() override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
     virtual void endJob() override;
-    virtual void ResetVariables();
-    virtual int GetCollections(const edm::Event&);
+    void ResetVariables(void);
+    int GetCollections(const edm::Event& iEvent);
     
-    void JetTuplizer::ResetVariables(void);
-    int JetTuplizer::GetCollections(const edm::Event& iEvent);
+    //MatchToGenJet stores the index of the corresponding Gen Jet or returns -999 if none found
+    int MatchToGenJet(double pt, double eta, double phi, double m, Handle<GenJetCollection> gen_jets, double delta_r); 
     
 
     // Fast jet stuff
     vector<fastjet::PseudoJet> fj_part;
-
-    GhostedAreaSpec area_spec;
-    AreaDefinition area_def;
 
     JetDefinition ak4_def = JetDefinition(antikt_algorithm, 0.4);
     JetDefinition ak8_def = JetDefinition(antikt_algorithm, 0.8);
@@ -221,6 +218,10 @@ private:
     vector<float> scouting_ak4_jet_phi;
     vector<float> scouting_ak4_jet_m;
     
+    vector<float> scouting_ak4_pruned_mass;
+    vector<float> scouting_ak4_trimmed_mass;
+    vector<float> scouting_ak4_sd_mass;
+    
     vector<float> scouting_ak4_jet_csv;
     
     vector<float> scouting_ak4_tau1;
@@ -228,6 +229,9 @@ private:
     vector<float> scouting_ak4_tau3;
     vector<float> scouting_ak4_tau4;
     vector<float> scouting_ak4_tau5;
+    
+    vector<int> scouting_ak4_matched_genjet;
+    vector<float> scouting_ak4_matched_deltam;
     
     //Scouting ak8 jets
     float scouting_ak8_Ht;
@@ -238,6 +242,10 @@ private:
     vector<float> scouting_ak8_jet_phi;
     vector<float> scouting_ak8_jet_m;
     
+    vector<float> scouting_ak8_pruned_mass;
+    vector<float> scouting_ak8_trimmed_mass;
+    vector<float> scouting_ak8_sd_mass;
+    
     vector<float> scouting_ak8_jet_csv;
     
     vector<float> scouting_ak8_tau1;
@@ -245,6 +253,9 @@ private:
     vector<float> scouting_ak8_tau3;
     vector<float> scouting_ak8_tau4;
     vector<float> scouting_ak8_tau5;
+    
+    vector<int> scouting_ak8_matched_genjet;
+    vector<float> scouting_ak8_matched_deltam;
     
     //reco ak4 jets
     float reco_ak4_Ht;
@@ -255,6 +266,10 @@ private:
     vector<float> reco_ak4_jet_phi;
     vector<float> reco_ak4_jet_m;
     
+    vector<float> reco_ak4_pruned_mass;
+    vector<float> reco_ak4_trimmed_mass;
+    vector<float> reco_ak4_sd_mass;
+        
     vector<float> reco_ak4_jet_csv;
     
     vector<float> reco_ak4_tau1;
@@ -262,6 +277,9 @@ private:
     vector<float> reco_ak4_tau3;
     vector<float> reco_ak4_tau4;
     vector<float> reco_ak4_tau5;
+    
+    vector<int> reco_ak4_matched_genjet;
+    vector<float> reco_ak4_matched_deltam;
     
     //reco ak8 jets
     float reco_ak8_Ht;
@@ -272,6 +290,10 @@ private:
     vector<float> reco_ak8_jet_phi;
     vector<float> reco_ak8_jet_m;
     
+    vector<float> reco_ak8_pruned_mass;
+    vector<float> reco_ak8_trimmed_mass;
+    vector<float> reco_ak8_sd_mass;    
+    
     vector<float> reco_ak8_jet_csv;
     
     vector<float> reco_ak8_tau1;
@@ -279,22 +301,11 @@ private:
     vector<float> reco_ak8_tau3;
     vector<float> reco_ak8_tau4;
     vector<float> reco_ak8_tau5;
+    
+    vector<int> reco_ak8_matched_genjet;
+    vector<float> reco_ak8_matched_deltam;
 };
 
 
 
-class JetTuplizer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
-   public:
-      explicit JetTuplizer(const edm::ParameterSet&);
-      ~JetTuplizer();
 
-      static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-
-   private:
-      virtual void beginJob() override;
-      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override;
-
-      // ----------member data ---------------------------
-};

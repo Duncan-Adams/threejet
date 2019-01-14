@@ -1,0 +1,2 @@
+This will draw the mass of the gen jet to a matched scouting jet passing cuts
+events->Draw("scouting_ak8_jet_m[0]/(1-scouting_ak8_matched_deltam[0]) >> h1(100, 0, 200)", "scouting_ak8_jet_pt[0] > 350 && scouting_ak8_jet_pt[1] > 350 && scouting_ak8_tau3[0]/scouting_ak8_tau2[0] < 0.67")
